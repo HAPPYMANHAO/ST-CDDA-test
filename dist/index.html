@@ -449,6 +449,40 @@ fieldset.fs-card{
 .cdda-root.fullscreen{position:fixed;inset:0;z-index:200;padding:8px;background:var(--bg-root)}
 .cdda-root.fullscreen .term-side{max-height:none}
 
+
+/* Context menu */
+.ctx-menu{
+  display:none;position:fixed;z-index:150;min-width:180px;
+  background:rgba(0,0,0,.96);border:1px solid var(--border-bright);
+  box-shadow:0 4px 24px rgba(0,0,0,.9),0 0 10px rgba(34,211,238,.1);
+  animation:ctxIn .12s ease-out;
+}
+.ctx-menu.on{display:block}
+@keyframes ctxIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+.ctx-hd{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid var(--slate-800);color:var(--text-dim);font-size:9px;letter-spacing:.08em}
+.ctx-hd button{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:12px}
+.ctx-btn{display:block;width:100%;background:none;border:none;color:var(--slate-300);font-family:inherit;font-size:11px;padding:8px 12px;text-align:left;cursor:pointer;transition:.12s}
+.ctx-btn:hover{background:rgba(34,211,238,.08);color:var(--cyan-400)}
+.ctx-btn:disabled{opacity:.35;cursor:not-allowed}
+.ctx-btn.ctx-roll{border-bottom:1px solid var(--slate-800)}
+.ctx-btn .ctx-icon{margin-right:6px}
+
+/* Edit modal */
+.edit-modal{display:none;position:fixed;inset:0;z-index:160;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+.edit-modal.on{display:flex;animation:cddaModIn .2s ease-out}
+.edit-modal .em-box{width:92%;max-width:700px;max-height:85vh;background:linear-gradient(180deg,rgba(6,12,16,.98),rgba(1,3,5,.99));border:1px solid var(--border-bright);box-shadow:0 0 60px rgba(0,0,0,1);display:flex;flex-direction:column}
+.edit-modal .em-hd{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--slate-800);color:var(--cyan-400);font-size:10px;letter-spacing:.08em}
+.edit-modal .em-hd button{background:none;border:1px solid var(--slate-800);color:var(--text-dim);font-family:inherit;padding:3px 8px;cursor:pointer;transition:.15s}
+.edit-modal .em-hd button:hover{color:var(--rose);border-color:var(--rose)}
+.edit-modal .em-bd{padding:12px;flex:1;display:flex;flex-direction:column;gap:10px}
+.edit-modal .em-bd textarea{flex:1;min-height:200px;background:rgba(0,0,0,.5);border:1px solid var(--slate-800);color:var(--text);font-family:inherit;font-size:12px;line-height:1.7;padding:10px 12px;resize:none;outline:none}
+.edit-modal .em-bd textarea:focus{border-color:var(--cyan-500)}
+.edit-modal .em-acts{display:flex;gap:8px;justify-content:flex-end}
+.edit-modal .em-acts button{background:rgba(0,0,0,.5);border:1px solid var(--slate-800);color:var(--text);font-family:inherit;font-size:11px;padding:6px 16px;cursor:pointer;transition:.15s}
+.edit-modal .em-acts .em-save{border-color:var(--green-700);color:var(--green-400)}
+.edit-modal .em-acts .em-save:hover{background:rgba(74,222,128,.1);border-color:var(--green-500)}
+.edit-modal .em-acts .em-cancel:hover{border-color:var(--rose);color:var(--rose)}
+
 </style>
 </head>
 <body>
@@ -548,9 +582,29 @@ fieldset.fs-card{
 </div>
 
 </div>
+
+<!-- Context menu -->
+<div class="ctx-menu" id="ctx-menu">
+  <div class="ctx-hd"><span>操作</span><button id="ctx-close">×</button></div>
+  <button class="ctx-btn ctx-roll" id="ctx-roll"><span class="ctx-icon">↻</span>重roll</button>
+  <button class="ctx-btn" id="ctx-edit"><span class="ctx-icon">✏</span>编辑正文</button>
+</div>
+<!-- Edit modal -->
+<div class="edit-modal" id="edit-modal">
+  <div class="em-box">
+    <div class="em-hd"><span>// EDIT_MAINTEXT</span><button id="em-close">[X] 关闭</button></div>
+    <div class="em-bd">
+      <textarea id="em-textarea" placeholder="编辑正文内容..."></textarea>
+      <div class="em-acts">
+        <button class="em-save" id="em-save">保存</button>
+        <button class="em-cancel" id="em-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 (function(){
-var NL=String.fromCharCode(10),busy=!1,cddaOptsOpen=!1;
+var NL=String.fromCharCode(10),busy=!1,cddaOptsOpen=!1,curMsgId=null,curUserMsgId=null,curFullMsg=null,lpTimer=null,lpActive=!1;
 function $(id){return document.getElementById(id)}
 function esc(s){return String(null==s?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function num(v,d){return(v=Number(v)),Number.isFinite(v)?v:d}
@@ -679,6 +733,39 @@ function renderCombat(c){
 }
 
 
+
+async function doReroll(){
+  if(curMsgId==null||curUserMsgId==null){console.warn("[CDDA] reroll: missing msg ids");return}
+  try{
+    busy=!0;sb(!0);
+    $('cdda-screen').innerHTML='<div class="term-loader"><i></i><span>重新生成中...</span></div>';
+    var ums=getChatMessages(curUserMsgId,{role:"user"}),userText="";
+    if(ums&&ums.length)userText=ums[0].message||"";
+    if(typeof deleteChatMessages=="function")await deleteChatMessages([curMsgId],{refresh:"none"});
+    if(!userText){$('cdda-screen').innerHTML='<span class="tr">// 无法找到用户消息</span>';return}
+    var d=await cd();if(typeof createChatMessages=="function")await createChatMessages([{role:"user",message:userText,data:d}],{refresh:"none"});
+    var reply="";if(typeof generate=="function")reply=await generate({user_input:userText,should_stream:!0});
+    reply=nr(reply);
+    if(typeof Mvu&&Mvu&&typeof Mvu.parseMessage=="function")try{var p=await Mvu.parseMessage(reply,d.stat_data||{});p&&(d={stat_data:p})}catch(e){}
+    if(typeof createChatMessages=="function")await createChatMessages([{role:"assistant",message:reply,data:d}],{refresh:"none"});
+    setTimeout(render,300);
+  }catch(e){$('cdda-screen').innerHTML='<span class="tr">// ERROR: '+esc(e&&e.message||e)+'</span>'}
+  finally{busy=!1;sb(!1)}
+}
+function openEdit(){
+  if(curMsgId==null||!curFullMsg){return}
+  var m=curFullMsg.match(/<maintext>([\s\S]*?)<\/maintext>/i);
+  var txt=m?m[1].trim():curFullMsg;
+  $('em-textarea').value=txt;$('edit-modal').classList.add('on');
+}
+async function saveEdit(){
+  if(curMsgId==null||!curFullMsg)return;
+  var newText=$('em-textarea').value;
+  var updated=curFullMsg.replace(/<maintext>[\s\S]*?<\/maintext>/i,"<maintext>"+newText+"</maintext>");
+  if(typeof setChatMessages=="function")await setChatMessages([{message_id:curMsgId,message:updated}],{refresh:"affected"});
+  $('edit-modal').classList.remove('on');
+  setTimeout(render,200);
+}
 function readMode(){
   var h='<span class="td">// 正在加载楼层...</span>';
   $('cdda-read').innerHTML=h;
@@ -747,6 +834,8 @@ function archiveMode(){
 }
 function render(){
   var dt=d(),p=dt.p,w=dt.w,c=dt.c,msg=parseMsg(gm());
+  // Track message info for long-press
+  try{curMsgId=null;curUserMsgId=null;curFullMsg=null;if(typeof getLastMessageId=="function"&&typeof getChatMessages=="function"){var lid=getLastMessageId();var ams=getChatMessages(lid,{role:"assistant"});if(ams&&ams.length){curMsgId=ams[0].message_id;curFullMsg=ams[0].message||"";if(curMsgId!=null&&curMsgId>0){var ums=getChatMessages(curMsgId-1,{role:"user"});if(ums&&ums.length)curUserMsgId=ums[0].message_id}}}}catch(e){}
   // Screen - show status line, not full narrative
   $('cdda-screen').innerHTML='<div class="sys-boot">SYSTEM REBOOT...\nLOADING KERNEL... OK\nMOUNTING VIRTUAL FILESYSTEM... OK\nINITIALIZING LLM BIO-INTERFACE... [ACTIVE]\n\n================================================</div>'+(msg.main?'<div class="msg-row">'+esc(msg.main)+'</div>':'<div class="msg-row">\u7b49\u5f85\u4e0b\u4e00\u8f6e\u884c\u52a8...</div>')+'<div class="term-loader"><i></i><span>\u7b49\u5f85\u8f93\u5165\u6307\u4ee4...</span></div>';
   // Options
@@ -780,6 +869,36 @@ $('btn-read').addEventListener('click',function(){$('modal-read').classList.add(
 $('btn-save').addEventListener('click',function(){$('modal-archive').classList.add('on');archiveMode()});
 $('btn-full').addEventListener('click',function(){var r=$('cdda-root');r.classList.toggle('fullscreen');this.textContent=r.classList.contains('fullscreen')?'[F] 缩小':'[F] 全屏'});
 document.querySelectorAll('.modal-overlay').forEach(function(m){m.addEventListener('click',function(e){e.target===m&&m.classList.remove('on')})});
+
+// Long press on screen
+function lpStart(e){
+  if(curMsgId==null||busy||$('ctx-menu').classList.contains('on'))return;
+  lpActive=!0;var x="touches"in e?e.touches[0].clientX:e.clientX;var y="touches"in e?e.touches[0].clientY:e.clientY;
+  lpTimer=setTimeout(function(){lpTimer=null;showCtx(x,y)},500);
+}
+function lpEnd(){if(lpTimer){clearTimeout(lpTimer);lpTimer=null}lpActive=!1}
+function showCtx(x,y){
+  var m=$('ctx-menu');m.style.left=Math.min(x,window.innerWidth-190)+"px";
+  m.style.top=Math.min(y,window.innerHeight-90)+"px";m.classList.add("on");
+}
+$('cdda-screen').addEventListener('mousedown',function(e){lpStart(e)});
+$('cdda-screen').addEventListener('mouseup',function(e){lpEnd()});
+$('cdda-screen').addEventListener('mouseleave',function(e){lpEnd()});
+$('cdda-screen').addEventListener('touchstart',function(e){lpStart(e)},{passive:!0});
+$('cdda-screen').addEventListener('touchend',function(e){lpEnd()});
+$('cdda-screen').addEventListener('touchcancel',function(e){lpEnd()});
+// Close context menu on outside click
+document.addEventListener('click',function(e){if(!e.target.closest('.ctx-menu')&&!e.target.closest('#cdda-screen'))$('ctx-menu').classList.remove('on')});
+// Context menu buttons
+$('ctx-close').addEventListener('click',function(e){e.stopPropagation();$('ctx-menu').classList.remove('on')});
+$('ctx-roll').addEventListener('click',async function(e){e.stopPropagation();$('ctx-menu').classList.remove('on');await doReroll()});
+$('ctx-edit').addEventListener('click',function(e){e.stopPropagation();$('ctx-menu').classList.remove('on');openEdit()});
+// Edit modal
+$('em-close').addEventListener('click',function(){$('edit-modal').classList.remove('on')});
+$('em-cancel').addEventListener('click',function(){$('edit-modal').classList.remove('on')});
+$('em-save').addEventListener('click',async function(){await saveEdit()});
+// Close edit modal on overlay click
+$('edit-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on')});
 
 render();setInterval(render,1500);
 try{'function'==typeof eventOn&&(eventOn('MESSAGE_UPDATED',render),eventOn('MESSAGE_RECEIVED',function(){setTimeout(render,500)}),eventOn('CDDA_PANEL_REFRESH',render))}catch(e){}
