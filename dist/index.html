@@ -900,8 +900,9 @@ $('em-save').addEventListener('click',async function(){await saveEdit()});
 // Close edit modal on overlay click
 $('edit-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on')});
 
-render();setInterval(render,1500);
+render();render();var renderInterval=setInterval(render,1500);
 try{'function'==typeof eventOn&&(eventOn('MESSAGE_UPDATED',render),eventOn('MESSAGE_RECEIVED',function(){setTimeout(render,500)}),eventOn('CDDA_PANEL_REFRESH',render))}catch(e){}
+$(window).on('pagehide',function(){clearInterval(renderInterval);try{if(typeof eventOn=='function'){eventOn('MESSAGE_UPDATED',null);eventOn('MESSAGE_RECEIVED',null);eventOn('CDDA_PANEL_REFRESH',null)}}catch(e){}})
 })();
 </script>
 </body>
