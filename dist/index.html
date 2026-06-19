@@ -133,25 +133,35 @@ html,body{
 @keyframes cdda-blink{0%,100%{opacity:.2}50%{opacity:1}}
 
 /* Options */
-.term-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 16px 10px}
+.term-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px 16px 8px}
 .term-opt{
-  background:transparent;color:var(--slate-400);border:1px solid var(--slate-800);
-  font-family:inherit;font-size:11px;padding:7px 10px;text-align:left;cursor:pointer;
+  background:rgba(0,0,0,.5);color:var(--slate-400);border:1px solid var(--slate-800);
+  font-family:inherit;font-size:11px;padding:8px 12px;text-align:left;cursor:pointer;
   transition:all .15s;position:relative;overflow:hidden;
 }
 .term-opt::before{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(34,211,238,.08),transparent);
-  transform:translateX(-110%);transition:transform .4s;
+  background:linear-gradient(90deg,transparent,rgba(34,211,238,.06),transparent);
+  transform:translateX(-110%);transition:transform .45s;
 }
 .term-opt:hover::before{transform:translateX(110%)}
-.term-opt:hover{color:var(--white);border-color:var(--cyan-500);box-shadow:0 0 15px rgba(34,211,238,.15)}
+.term-opt:hover{color:var(--white);border-color:var(--cyan-500);box-shadow:0 0 18px rgba(34,211,238,.15)}
+.term-opt::after{
+  content:"";position:absolute;inset:0;border:1px solid transparent;transition:border-color .3s;
+}
+.term-opt:hover::after{border-color:var(--cyan-500);animation:opt-pulse 1.5s ease-in-out infinite}
+@keyframes opt-pulse{0%,100%{opacity:.4}50%{opacity:1}}
 
 /* Input */
 .term-cmd{
   display:flex;align-items:center;gap:8px;
-  border-top:1px solid var(--slate-800);padding:8px 16px;
-  background:rgba(0,0,0,.9);
+  border-top:1px solid var(--slate-800);padding:9px 16px;
+  background:rgba(0,0,0,.92);
+  position:sticky;bottom:0;z-index:5;
+}
+.term-cmd::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(34,197,94,.25),transparent);
 }
 .term-cmd .gprompt{color:var(--green-500);font-weight:700;font-size:14px;
   text-shadow:0 0 6px rgba(34,197,94,.8)}
