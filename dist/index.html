@@ -409,6 +409,46 @@ fieldset.fs-card{
 
 /* Utility */
 .hidden{display:none!important}.empty-msg{color:var(--slate-600);font-size:11px;padding:12px}
+
+/* Option toggle */
+.opt-toggle-btn{
+  display:none;background:rgba(0,0,0,.5);color:var(--cyan-400);border:1px solid var(--slate-800);
+  font-family:inherit;font-size:10px;padding:4px 10px;cursor:pointer;letter-spacing:.06em;
+  margin:0 16px 4px;transition:.15s;
+}
+.opt-toggle-btn:hover{border-color:var(--cyan-500);box-shadow:0 0 10px var(--cyan-glow)}
+.opt-toggle-btn.has-opts{display:inline-block}
+.term-opts{display:none;grid-template-columns:1fr 1fr;gap:6px;padding:0 16px 8px}
+.term-opts.open{display:grid;animation:optIn .2s ease-out}
+@keyframes optIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* Top bar extra buttons */
+.bar-btn.btn-read{color:var(--slate-400)}.bar-btn.btn-read:hover{color:var(--yellow-400);border-color:rgba(250,204,21,.3);background:rgba(250,204,21,.08)}
+.bar-btn.btn-save{color:var(--slate-400)}.bar-btn.btn-save:hover{color:var(--green-400);border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.08)}
+.bar-btn.btn-full{color:var(--slate-400)}.bar-btn.btn-full:hover{color:var(--cyan-400);border-color:rgba(34,211,238,.3);background:rgba(34,211,238,.08)}
+
+/* Reading mode modal */
+.read-floor{border:1px solid var(--slate-800);background:rgba(0,0,0,.3);margin-bottom:8px;overflow:hidden}
+.read-floor .rf-head{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(0,0,0,.4);border-bottom:1px solid var(--slate-800);cursor:pointer;transition:.15s}
+.read-floor .rf-head:hover{background:rgba(0,0,0,.6)}
+.read-floor .rf-head .rf-id{color:var(--cyan-500);font-size:10px;font-weight:700}
+.read-floor .rf-head .rf-time{color:var(--slate-500);font-size:9px}
+.read-floor .rf-body{padding:10px 12px;color:var(--slate-300);line-height:1.7;white-space:pre-wrap;max-height:300px;overflow-y:auto;display:none}
+.read-floor .rf-body.open{display:block}
+
+/* Archive list */
+.arch-entry{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid var(--slate-800);background:rgba(0,0,0,.3);margin-bottom:4px;cursor:pointer;transition:.15s}
+.arch-entry:hover{border-color:var(--green-500);background:rgba(74,222,128,.05);box-shadow:0 0 8px rgba(74,222,128,.1)}
+.arch-entry .ae-id{color:var(--cyan-500);font-size:10px;font-weight:700;flex-shrink:0;margin-right:10px}
+.arch-entry .ae-sum{color:var(--slate-300);flex:1;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arch-entry .ae-branch{color:var(--green-400);font-size:9px;border:1px solid rgba(74,222,128,.3);padding:2px 6px;flex-shrink:0;opacity:0;transition:.15s}
+.arch-entry:hover .ae-branch{opacity:1}
+.arch-entry .ae-nodata{color:var(--slate-600);flex:1;font-size:11px}
+
+/* Fullscreen */
+.cdda-root.fullscreen{position:fixed;inset:0;z-index:200;padding:8px;background:var(--bg-root)}
+.cdda-root.fullscreen .term-side{max-height:none}
+
 </style>
 </head>
 <body>
@@ -422,12 +462,16 @@ fieldset.fs-card{
   <div class="term-bar">
     <span class="bar-title">C:/> CDDA_PROTOCOL_ACTIVE</span>
     <div class="bar-btns">
-      <button class="bar-btn btn-inv" data-open="inv">[I] 物品栏</button>
-      <button class="bar-btn btn-mut" data-open="mut">[M] 变异/CBM</button>
+      <button class="bar-btn btn-read" id="btn-read">[R] 阅读</button>
+      <button class="bar-btn btn-save" id="btn-save">[S] 读档</button>
+      <button class="bar-btn btn-full" id="btn-full">[F] 全屏</button>
+      <button class="bar-btn btn-inv" data-open="inv">[I] 物品</button>
+      <button class="bar-btn btn-mut" data-open="mut">[M] 变异</button>
       <button class="bar-btn btn-com" data-open="combat">[C] 战斗</button>
     </div>
   </div>
   <div class="term-screen" id="cdda-screen"></div>
+  <button class="opt-toggle-btn" id="opt-toggle">[+] 选项 (0)</button>
   <div class="term-opts" id="cdda-opts"></div>
   <div class="term-cmd">
     <span class="gprompt">&gt;</span>
@@ -456,6 +500,19 @@ fieldset.fs-card{
 </div>
 
 <!-- MODALS -->
+
+<div class="modal-overlay" id="modal-read">
+  <div class="modal-box">
+    <div class="modal-hd"><span class="mh-title">=== READING MODE / 阅读模式 ===</span><button class="mh-close">[X] 关闭</button></div>
+    <div class="modal-bd" id="cdda-read"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-archive">
+  <div class="modal-box">
+    <div class="modal-hd"><span class="mh-title">=== ARCHIVE / 读档 ===</span><button class="mh-close">[X] 关闭</button></div>
+    <div class="modal-bd" id="cdda-archive"></div>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-inv">
   <div class="modal-box">
     <div class="modal-hd">
@@ -493,7 +550,7 @@ fieldset.fs-card{
 </div>
 <script>
 (function(){
-var NL=String.fromCharCode(10),busy=!1;
+var NL=String.fromCharCode(10),busy=!1,cddaOptsOpen=!1;
 function $(id){return document.getElementById(id)}
 function esc(s){return String(null==s?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function num(v,d){return(v=Number(v)),Number.isFinite(v)?v:d}
@@ -621,14 +678,81 @@ function renderCombat(c){
   return'<div class="combat-top"><div class="combat-enemy"><div class="combat-ename"><span class="ce-glyph">Z</span><span class="ce-name">'+en+'</span></div><div class="combat-edesc">'+esc(val(c,'\u654c\u4eba\u63cf\u8ff0',''))+'</div></div><div class="combat-info"><div class="ci-row"><span class="ci-label">\u6570\u91cf:</span><span class="ci-val-w">'+cnt+'</span></div><div class="ci-row"><span class="ci-label">\u8ddd\u79bb:</span><span class="ci-val-r">'+esc(val(c,'\u8ddd\u79bb','--'))+'</span></div><div class="ci-div"></div><div class="ci-row"><span class="ci-label">\u6001\u52bf:</span><span class="ci-stance">'+stance+'</span></div></div></div><div class="combat-log-hd"><span>====== \u6218\u6597\u65e5\u5fd7\u8bb0\u5f55 ======</span><span class="cl-div"></span></div><div class="combat-log-box">'+logH+'</div>';
 }
 
+
+function readMode(){
+  var h='<span class="td">// 正在加载楼层...</span>';
+  $('cdda-read').innerHTML=h;
+  try{
+    if('function'!=typeof getLastMessageId||'function'!=typeof getChatMessages){$('cdda-read').innerHTML='<span class="tr">// 无法访问聊天记录</span>';return}
+    var last=getLastMessageId(),floors=[];
+    for(var i=last;i>=0&&i>last-80;i--){
+      var ms=getChatMessages(i,{role:'all'});
+      if(!ms||!ms.length)continue;
+      ms.forEach(function(m){
+        var t=clean(m.message||'');
+        var main=tag(m.message,'maintext')||t;
+        if(main)floors.push({id:m.message_id,role:m.role||'?',text:main});
+      });
+    }
+    if(!floors.length){$('cdda-read').innerHTML='<span class="td">// 暂无楼层数据</span>';return}
+    h=floors.map(function(f){
+      return'<div class="read-floor"><div class="rf-head" data-floor="'+f.id+'"><span class="rf-id">#'+f.id+' ['+esc(f.role)+']</span><span class="rf-time">点击展开</span></div><div class="rf-body" id="rf-'+f.id+'">'+esc(f.text)+'</div></div>';
+    }).join('');
+  }catch(e){h='<span class="tr">// ERROR: '+esc(e.message)+'</span>'}
+  $('cdda-read').innerHTML=h;
+  // Add click handlers for floor expansion
+  document.querySelectorAll('.rf-head').forEach(function(el){
+    el.addEventListener('click',function(){
+      var body=document.getElementById('rf-'+this.getAttribute('data-floor'));
+      if(body)body.classList.toggle('open');
+    });
+  });
+}
+
+function archiveMode(){
+  var h='<span class="td">// 正在加载归档...</span>';
+  $('cdda-archive').innerHTML=h;
+  try{
+    if('function'!=typeof getLastMessageId||'function'!=typeof getChatMessages){$('cdda-archive').innerHTML='<span class="tr">// 无法访问聊天记录</span>';return}
+    var last=getLastMessageId(),entries=[];
+    for(var i=last;i>=0&&i>last-80;i--){
+      var ms=getChatMessages(i,{role:'all'});
+      if(!ms||!ms.length)continue;
+      ms.forEach(function(m){
+        var s=tag(m.message,'sum');
+        entries.push({id:m.message_id,role:m.role||'?',sum:s||'无摘要'});
+      });
+    }
+    if(!entries.length){$('cdda-archive').innerHTML='<span class="td">// 暂无楼层数据</span>';return}
+    h=entries.map(function(e){
+      return'<div class="arch-entry" data-arch="'+e.id+'"><span class="ae-id">#'+e.id+'</span><span class="ae-sum">'+esc(e.sum)+'</span><span class="ae-branch">[+ 分支]</span></div>';
+    }).join('');
+  }catch(e){h='<span class="tr">// ERROR: '+esc(e.message)+'</span>'}
+  $('cdda-archive').innerHTML=h;
+  // Add click handlers for archive branching
+  document.querySelectorAll('.arch-entry').forEach(function(el){
+    el.addEventListener('click',function(){
+      var mid=this.getAttribute('data-arch');
+      if('function'==typeof SillyTavern&&SillyTavern.getContext){
+        try{
+          var ctx=SillyTavern.getContext();
+          if(ctx&&ctx.chat&&'function'==typeof ctx.chat.branchCreate){
+            ctx.chat.branchCreate(parseInt(mid));
+            $('modal-archive').classList.remove('on');
+          }
+        }catch(e){}
+      }
+    });
+  });
+}
 function render(){
   var dt=d(),p=dt.p,w=dt.w,c=dt.c,msg=parseMsg(gm());
   // Screen - show status line, not full narrative
   $('cdda-screen').innerHTML='<div class="sys-boot">SYSTEM REBOOT...\nLOADING KERNEL... OK\nMOUNTING VIRTUAL FILESYSTEM... OK\nINITIALIZING LLM BIO-INTERFACE... [ACTIVE]\n\n================================================</div>'+(msg.main?'<div class="msg-row">'+esc(msg.main)+'</div>':'<div class="msg-row">\u7b49\u5f85\u4e0b\u4e00\u8f6e\u884c\u52a8...</div>')+'<div class="term-loader"><i></i><span>\u7b49\u5f85\u8f93\u5165\u6307\u4ee4...</span></div>';
   // Options
-  var oe=$('cdda-opts');
-  if(msg.opts.length){oe.innerHTML=msg.opts.map(function(o){return'<button class="term-opt" data-opt="'+esc(o.id)+'">['+esc(o.id)+'] '+esc(o.text)+'</button>'}).join('');oe.classList.remove('hidden')}
-  else oe.classList.add('hidden');
+  var oe=$('cdda-opts'),ot=$('opt-toggle');
+  if(msg.opts.length){oe.innerHTML=msg.opts.map(function(o){return'<button class="term-opt" data-opt="'+esc(o.id)+'">['+esc(o.id)+'] '+esc(o.text)+'</button>'}).join('');ot.textContent='[▼] 选项 ('+msg.opts.length+')';ot.classList.add('has-opts');if(cddaOptsOpen)oe.classList.add('open')}
+  else{oe.innerHTML='';ot.textContent='[-] 无选项';ot.classList.remove('has-opts');oe.classList.remove('open');cddaOptsOpen=!1}
   // Panels
   $('cdda-hp').innerHTML=renderHp(p);
   $('cdda-stat').innerHTML=renderStat(p);
@@ -650,7 +774,11 @@ document.addEventListener('click',function(e){
   var c=e.target.closest('.mh-close');if(c)return c.closest('.modal-overlay').classList.remove('on');
   var o=e.target.closest('[data-opt]');if(o){send(o.textContent.replace(/^\[[^\]]+\]\s*/,''));return}
 });
+$('opt-toggle').addEventListener('click',function(){cddaOptsOpen=!cddaOptsOpen;render()});
 $('cdda-input').addEventListener('keydown',function(e){'Enter'===e.key&&send(this.value)});
+$('btn-read').addEventListener('click',function(){$('modal-read').classList.add('on');readMode()});
+$('btn-save').addEventListener('click',function(){$('modal-archive').classList.add('on');archiveMode()});
+$('btn-full').addEventListener('click',function(){var r=$('cdda-root');r.classList.toggle('fullscreen');this.textContent=r.classList.contains('fullscreen')?'[F] 缩小':'[F] 全屏'});
 document.querySelectorAll('.modal-overlay').forEach(function(m){m.addEventListener('click',function(e){e.target===m&&m.classList.remove('on')})});
 
 render();setInterval(render,1500);
