@@ -52,7 +52,7 @@ html,body{
   padding:8px;gap:8px;position:relative;z-index:1;
 }
 /* responsive */
-@media(max-width:1024px){.term-side{width:310px}}
+@media(max-width:1024px){.term-side{width:340px}}
 @media(max-width:860px){
   .app-root{flex-direction:column;padding:4px;gap:4px}
   .term-side{width:100%;max-height:none;flex-direction:row;flex-wrap:wrap;gap:4px;overflow-y:visible}
@@ -174,7 +174,7 @@ html,body{
 
 /* === Side panel (right) === */
 .term-side{
-  width:380px;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);
+  width:420px;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);
   flex-shrink:0;display:flex;flex-direction:column;gap:6px;
   overflow-y:auto;padding-right:2px;align-items:stretch;
 }
@@ -182,12 +182,13 @@ html,body{
 
 /* fieldset card - matches reference StatusPanel */
 fieldset.fs-card{
-  min-inline-size:auto;min-width:0;width:100%;margin:0;
+  display:block;box-sizing:border-box;
+  min-inline-size:auto;min-width:100%;width:100%;max-width:100%;margin:0;
   border:1px solid var(--slate-700);padding:6px 10px 10px;
   background:rgba(0,0,0,.4);position:relative;
   box-shadow:inset 0 0 60px rgba(0,0,0,.8);transition:border-color .15s;
 }
-.fs-card>*{width:100%}
+.fs-card>*{width:100%;min-width:100%}
 .fs-card:hover{border-color:var(--slate-600)}
 .fs-card legend{
   padding:0 6px;color:var(--slate-400);font-size:10px;letter-spacing:.12em;
@@ -198,7 +199,7 @@ fieldset.fs-card{
 .hp-row{display:flex;align-items:center;font-size:12px;margin:3px 0;width:100%}
 .hp-row:hover .hp-label{color:var(--slate-200)}
 .hp-row .hp-label{color:var(--slate-400);width:36px;text-align:right;margin-right:8px;transition:color .15s;flex-shrink:0}
-.hp-row .hp-bar{font-weight:700;letter-spacing:.08em}
+.hp-row .hp-bar{flex:1;font-weight:700;letter-spacing:.08em}
 .hp-row .hp-val{color:var(--slate-500);margin-left:auto;font-size:10px;font-variant-numeric:tabular-nums}
 .hp-green .hp-bar{color:var(--green-500);text-shadow:0 0 5px rgba(34,197,94,.3)}
 .hp-cyan .hp-bar{color:var(--cyan-400);text-shadow:0 0 5px rgba(34,211,238,.3)}
