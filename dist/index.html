@@ -1,73 +1,364 @@
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <style>
-:root{--bg:#030406;--panel:#06090c;--line:#334155;--dim:#64748b;--text:#cbd5e1;--green:#22c55e;--cyan:#22d3ee;--red:#ef4444;--yellow:#eab308}
-*{box-sizing:border-box}body{margin:0;background:#000;color:var(--text);font-family:"Consolas","Lucida Console","Courier New",monospace;font-size:13px}.cdda-root{min-height:560px;background:radial-gradient(circle at center,#0b1118 0,#030406 52%,#000 100%);border:1px solid #1e293b;padding:10px;position:relative;overflow:hidden}.cdda-root:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025),rgba(255,255,255,.025) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:3}.cdda-frame{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:10px;min-height:540px}.box{background:rgba(6,9,12,.96);border:1px solid var(--line);box-shadow:inset 0 0 36px rgba(0,0,0,.75)}.title{color:var(--dim);border-bottom:1px solid #1e293b;padding:8px 10px;font-weight:bold;letter-spacing:.12em}.main{display:flex;flex-direction:column;min-height:540px}.screen{flex:1;padding:14px;overflow:auto;white-space:pre-wrap;line-height:1.65}.cmd{display:flex;gap:8px;border-top:1px solid #1e293b;padding:10px;background:#020617}.cmd span{color:var(--green);font-weight:bold}.cmd input{flex:1;background:transparent;border:0;outline:0;color:#fff;font-family:inherit}.cmd button{background:#03131a;border:1px solid #155e75;color:#a5f3fc;font-family:inherit;padding:5px 12px;cursor:pointer}.cmd button:disabled{opacity:.45;cursor:not-allowed}.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.opt,.btn{background:#020617;color:var(--text);border:1px solid #334155;padding:7px 9px;font-family:inherit;text-align:left;cursor:pointer}.opt:hover,.btn:hover{border-color:var(--cyan);color:#fff}.side{display:grid;grid-template-rows:auto auto auto auto 1fr;gap:10px}.section{padding:10px}.sec-title{color:var(--cyan);border-bottom:1px dashed #334155;margin-bottom:8px;padding-bottom:4px}.row{display:flex;justify-content:space-between;gap:8px;margin:5px 0}.bar{height:10px;border:1px solid #475569;background:#020617;position:relative}.bar i{display:block;height:100%;background:var(--green)}.bar.red i{background:var(--red)}.bar.yellow i{background:var(--yellow)}.hpgrid{display:grid;grid-template-columns:42px 1fr 34px;gap:5px;align-items:center}.map{color:#94a3b8;line-height:1.25;white-space:pre}.modal{display:none;position:absolute;inset:32px;z-index:5;background:#020617;border:1px solid #64748b;box-shadow:0 0 0 9999px rgba(0,0,0,.62),inset 0 0 60px #000}.modal.on{display:block}.modal-head{display:flex;justify-content:space-between;border-bottom:1px solid #334155;padding:10px;color:var(--cyan);font-weight:bold}.modal-body{padding:12px;max-height:420px;overflow:auto}.close{background:#111827;color:#fff;border:1px solid #475569;font-family:inherit;cursor:pointer}.pill{display:inline-block;border:1px solid #334155;padding:3px 6px;margin:3px;color:#cbd5e1;background:#020617}.warn{color:var(--yellow)}.bad{color:var(--red)}.good{color:var(--green)}@media(max-width:760px){.cdda-frame{grid-template-columns:1fr}.side{grid-template-rows:auto}.cdda-root{min-height:900px}}
+:root {
+  --bg: #010203;
+  --surface: #080c10;
+  --glass: rgba(8,14,18,.92);
+  --glass-dark: rgba(2,5,7,.95);
+  --border: #1e303a;
+  --border-bright: #2f4f5e;
+  --text: #bcc7c4;
+  --text-dim: #54616c;
+  --text-bright: #e2ece8;
+  --cyan: #59cddc;
+  --cyan-bright: #8af0fd;
+  --cyan-glow: rgba(89,205,220,.28);
+  --cyan-faint: rgba(89,205,220,.08);
+  --moss: #7db555;
+  --moss-glow: rgba(125,181,85,.28);
+  --amber: #cf9e40;
+  --amber-glow: rgba(207,158,64,.25);
+  --rose: #c45b65;
+  --rose-glow: rgba(196,91,101,.22);
+  --violet: #b780cd;
+  --violet-glow: rgba(183,128,205,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  margin:0;padding:0;background:#000;color:var(--text);
+  font-family:"Consolas","Courier New",monospace;
+  font-size:11.5px;line-height:1.45;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.cdda-root{
+  width:100%;max-width:100%;min-height:100vh;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(30,70,80,.18),transparent 55%),
+    radial-gradient(ellipse at 85% 15%,rgba(207,158,64,.1),transparent 40%),
+    linear-gradient(180deg,#010203,#060e12 35%,#020508 100%);
+  padding:8px;position:relative;overflow:hidden;
+}
+.cdda-root::before{
+  content:"";position:absolute;inset:0;z-index:10;pointer-events:none;
+  background:repeating-linear-gradient(0deg,
+    var(--cyan-faint),var(--cyan-faint) 1px,
+    transparent 1px,transparent 3px);
+}
+.cdda-content{position:relative;z-index:11}
 
-.status-card{background:linear-gradient(180deg,rgba(10,16,18,.86),rgba(3,5,6,.94));border:1px solid #2b4650;box-shadow:0 14px 32px rgba(0,0,0,.45),inset 0 0 30px rgba(0,0,0,.65);backdrop-filter:blur(8px)}
-.ascii{margin:0;white-space:pre;font-size:12px;line-height:1.42;color:#c9d8d4;text-shadow:0 0 10px rgba(105,210,223,.08)}
-.loc{display:inline-block;min-width:18px;text-align:center;border:1px solid #52626a;background:#f4f1e8;color:#111;font-weight:900;box-shadow:0 0 16px rgba(244,241,232,.18)}
-.loc.forest{background:#17331f;color:#8fd074;border-color:#315b36}.loc.field{background:#111;color:#b6b6a1}.loc.cabin{background:#5a351d;color:#f2c78c}.loc.city{background:#26323a;color:#c8d7de}
-.modal{background:linear-gradient(180deg,rgba(8,13,15,.96),rgba(2,3,4,.98));border-color:#55717b;box-shadow:0 0 0 9999px rgba(0,0,0,.68),0 0 60px rgba(105,210,223,.18),inset 0 0 70px #000}.modal.on{animation:cddaRise .18s ease-out}@keyframes cddaRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.tab{border:1px solid #344b54;background:#05090b;color:#748681;padding:5px 8px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.item,.log{border:1px solid #253b43;background:#05090b;padding:8px;margin:6px 0}.good{color:#8fb36a}.bad{color:#cf6f77}.neutral{color:#c68adf}.dim{color:#748681}
+/* ── top bar ── */
+.term-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:4px 10px;background:rgba(0,0,0,.55);
+  border:1px solid var(--border);border-bottom:none;
+  color:var(--text-dim);font-size:9.5px;letter-spacing:.14em;
+}
+.term-bar b{color:var(--cyan);text-shadow:0 0 14px var(--cyan-glow)}
+.term-bar .pulse{color:var(--moss);animation:cddaPulse 2s ease-in-out infinite}
+@keyframes cddaPulse{0%,100%{opacity:.45}50%{opacity:1}}
+
+/* ── main terminal area ── */
+.term-main{
+  border:1px solid var(--border);border-top:none;
+  background:var(--glass);backdrop-filter:blur(12px);
+  box-shadow:inset 0 0 70px rgba(0,0,0,.5),0 4px 24px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;
+  min-height:140px;max-height:38vh;
+}
+.term-screen{
+  flex:1;padding:10px;overflow-y:auto;
+  white-space:pre-wrap;word-break:break-word;
+  color:var(--text);line-height:1.65;font-size:11.5px;
+}
+/* options */
+.term-opts{
+  display:grid;grid-template-columns:1fr 1fr;gap:5px;
+  padding:0 10px 8px;
+}
+.term-opt{
+  background:rgba(0,0,0,.55);border:1px solid var(--border);
+  color:var(--text);font-family:inherit;font-size:10.5px;
+  padding:5px 8px;text-align:left;cursor:pointer;
+  position:relative;overflow:hidden;transition:.2s;
+}
+.term-opt::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,var(--cyan-faint),transparent);
+  transform:translateX(-110%);transition:transform .45s;
+}
+.term-opt:hover::before{transform:translateX(110%)}
+.term-opt:hover{border-color:var(--border-bright);color:var(--text-bright);
+  box-shadow:0 0 18px var(--cyan-glow)}
+/* cmd */
+.term-cmd{
+  display:flex;gap:8px;padding:7px 10px;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,.45);
+}
+.term-cmd .prompt{color:var(--moss);font-weight:bold;font-size:13px}
+.term-cmd input{
+  flex:1;background:transparent;border:0;outline:0;
+  color:var(--text-bright);font-family:inherit;font-size:11.5px;
+  caret-color:var(--cyan);
+}
+.term-cmd input::placeholder{color:var(--text-dim)}
+.term-cmd button{
+  background:linear-gradient(180deg,rgba(15,35,45,.85),rgba(3,10,14,.92));
+  border:1px solid #1f505f;color:var(--cyan);
+  font-family:inherit;font-size:10px;padding:3px 12px;cursor:pointer;
+  letter-spacing:.1em;transition:.2s;text-transform:uppercase;
+}
+.term-cmd button:hover{
+  border-color:var(--cyan-bright);box-shadow:0 0 20px var(--cyan-glow);
+  color:#fff;
+}
+.term-cmd button:disabled{opacity:.35;cursor:not-allowed}
+
+/* ── status panels ── */
+.term-panels{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:6px;margin-top:6px;
+}
+.term-card{
+  background:var(--glass);backdrop-filter:blur(10px);
+  border:1px solid var(--border);
+  box-shadow:0 4px 18px rgba(0,0,0,.45),inset 0 0 40px rgba(0,0,0,.35);
+  overflow:hidden;transition:border-color .3s;
+}
+.term-card:hover{border-color:var(--border-bright)}
+.term-card .card-hd{
+  color:var(--cyan);font-size:9.5px;letter-spacing:.12em;
+  padding:5px 10px;border-bottom:1px solid var(--border);
+  background:rgba(0,0,0,.35);
+}
+.term-card .card-bd{padding:7px 10px}
+
+/* ── ascii pre ── */
+.ascii-pre{
+  margin:0;white-space:pre;font-size:10.5px;line-height:1.5;
+  color:#c9d6d2;font-family:inherit;overflow-x:auto;
+  text-shadow:0 0 6px var(--cyan-faint);
+}
+
+/* ── location glyph ── */
+.lglyph{
+  display:inline-block;min-width:20px;text-align:center;
+  font-weight:bold;padding:1px 5px;line-height:1.5;
+  border:1px solid;
+}
+.lglyph.s{background:#f4f1e8;color:#111;border-color:#8a8578}
+.lglyph.f{background:#17331f;color:#7ecb66;border-color:#295234}
+.lglyph.w{background:#121518;color:#7d806e;border-color:#3a3d34}
+.lglyph.h{background:#4a2a14;color:#e8b878;border-color:#65402e}
+.lglyph.c{background:#192434;color:#a0bdd0;border-color:#395068}
+
+/* ── modal buttons ── */
+.term-btns{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:6px;
+}
+.term-btn{
+  background:rgba(0,0,0,.55);border:1px solid var(--border);
+  color:var(--text-dim);font-family:inherit;font-size:9.5px;
+  padding:4px 6px;cursor:pointer;letter-spacing:.06em;
+  transition:.2s;
+}
+.term-btn:hover{border-color:var(--amber);color:var(--amber);
+  box-shadow:0 0 12px var(--amber-glow)}
+
+/* ── modals ── */
+.term-modal{
+  display:none;position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.82);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;
+}
+.term-modal.on{display:flex;animation:cddaModIn .2s ease-out}
+@keyframes cddaModIn{from{opacity:0}to{opacity:1}}
+.term-modal .mw{
+  width:92%;max-width:560px;max-height:78vh;
+  background:linear-gradient(180deg,rgba(6,12,16,.98),rgba(1,3,5,.99));
+  border:1px solid #2d5262;
+  box-shadow:0 0 80px rgba(0,0,0,.8),0 0 35px var(--cyan-faint);
+  display:flex;flex-direction:column;
+  animation:cddaModSlide .24s ease-out;
+}
+@keyframes cddaModSlide{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+.term-modal .mh{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;border-bottom:1px solid var(--border);
+  color:var(--cyan);font-size:10.5px;letter-spacing:.08em;
+}
+.term-modal .mclose{
+  background:none;border:1px solid var(--border);color:var(--text-dim);
+  font-family:inherit;padding:3px 8px;cursor:pointer;font-size:9.5px;
+  transition:.2s;
+}
+.term-modal .mclose:hover{border-color:var(--rose);color:var(--rose)}
+.term-modal .mb{padding:10px 12px;overflow-y:auto;flex:1;font-size:10.5px}
+
+/* tabs */
+.term-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.term-tab{
+  border:1px solid var(--border);background:rgba(0,0,0,.5);
+  color:var(--text-dim);font-family:inherit;font-size:9.5px;
+  padding:3px 7px;cursor:pointer;transition:.2s;
+}
+.term-tab:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* item rows */
+.term-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:5px 8px;border:1px solid var(--border);
+  background:rgba(0,0,0,.3);margin:2px 0;transition:.2s;
+}
+.term-item:hover{border-color:var(--border-bright)}
+
+/* mut/cbm cols */
+.term-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.term-col{border:1px solid var(--border);padding:8px;background:rgba(0,0,0,.3);min-height:80px}
+
+/* pills */
+.term-pill{
+  display:inline-block;border:1px solid var(--border);
+  padding:2px 7px;margin:2px;font-size:9.5px;
+  background:rgba(0,0,0,.45);
+}
+
+/* combat log */
+.term-log{border:1px solid var(--border);padding:8px;margin-top:6px;
+  background:rgba(0,0,0,.35);max-height:140px;overflow-y:auto;
+  font-size:10px;line-height:1.55}
+
+/* color classes */
+.tc{color:var(--cyan)}.ta{color:var(--amber)}.tm{color:var(--moss)}
+.tr{color:var(--rose)}.tv{color:var(--violet)}.td{color:var(--text-dim)}
+
+/* responsive */
+@media(max-width:600px){
+  .term-panels{grid-template-columns:1fr}
+  .term-opts{grid-template-columns:1fr}
+  .term-main{max-height:35vh}
+  .cdda-root{font-size:11px}
+}
 </style>
 </head>
 <body>
 <div class="cdda-root" id="cdda-root">
-  <div class="cdda-frame">
-    <div class="box main">
-      <div class="title">C:\$ CDDA_SURVIVAL_PROTOCOL v3.0</div>
-      <div class="screen" id="cdda-main">CATACLYSM: DARK DAYS AHEAD
-XE-037 MONITOR: BOOTING
+<div class="cdda-content">
 
-正在读取楼层文本与 MVU 变量...</div>
-      <div class="cmd"><span>&gt;</span><input id="cdda-input" placeholder="输入你的行动..." autocomplete="off"><button id="cdda-send">发送</button></div>
-    </div>
-    <div class="side">
-      <div class="box section status-card"><div class="sec-title">生命值</div><div id="cdda-hp"></div></div>
-      <div class="box section status-card"><div class="sec-title">属性与技能</div><div id="cdda-stat"></div></div>
-      <div class="box section status-card"><div class="sec-title">装备与状态</div><div id="cdda-eq"></div><div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px"><button class="btn" data-open="inv">物品栏</button><button class="btn" data-open="mut">变异/CBM</button><button class="btn" data-open="combat">战斗</button></div></div>
-      <div class="box section status-card"><div class="sec-title">环境信息</div><div id="cdda-env"></div></div>
-      <div class="box section status-card"><div class="sec-title">局部地图</div><div class="map" id="cdda-map"></div></div>
+<div class="term-bar">
+  <span><b>CDDA</b> // SURVIVAL_TERMINAL v3.0</span>
+  <span class="pulse" id="cdda-status">ONLINE</span>
+</div>
+
+<div class="term-main">
+  <div class="term-screen" id="cdda-screen"></div>
+  <div class="term-opts" id="cdda-opts"></div>
+  <div class="term-cmd">
+    <span class="prompt">&gt;</span>
+    <input id="cdda-input" placeholder="输入行动指令..." autocomplete="off">
+    <button id="cdda-send">EXEC</button>
+  </div>
+</div>
+
+<div class="term-panels">
+  <div class="term-card">
+    <div class="card-hd">// SYS:VITALS</div>
+    <div class="card-bd"><pre class="ascii-pre" id="cdda-hp"></pre></div>
+  </div>
+  <div class="term-card">
+    <div class="card-hd">// SYS:ATTRIBUTES</div>
+    <div class="card-bd"><pre class="ascii-pre" id="cdda-stat"></pre></div>
+  </div>
+  <div class="term-card">
+    <div class="card-hd">// SYS:EQUIPMENT</div>
+    <div class="card-bd">
+      <pre class="ascii-pre" id="cdda-eq"></pre>
+      <div class="term-btns">
+        <button class="term-btn" data-open="inv">[I] 物品栏</button>
+        <button class="term-btn" data-open="mut">[M] 变异/CBM</button>
+        <button class="term-btn" data-open="combat">[C] 战斗</button>
+      </div>
     </div>
   </div>
-  <div class="modal" id="modal-inv"><div class="modal-head">物品栏 <button class="close">关闭</button></div><div class="modal-body" id="cdda-inv"><div class="tabs"><span class="tab">武器</span><span class="tab">药品</span><span class="tab">工具</span><span class="tab">食物</span><span class="tab">弹药</span><span class="tab">材料</span><span class="tab">书籍</span></div></div></div>
-  <div class="modal" id="modal-mut"><div class="modal-head">变异与 CBM <button class="close">关闭</button></div><div class="modal-body grid2" id="cdda-mut"></div></div>
-  <div class="modal" id="modal-combat"><div class="modal-head">战斗信息 <button class="close">关闭</button></div><div class="modal-body" id="cdda-combat"></div></div>
+  <div class="term-card">
+    <div class="card-hd">// SYS:ENVIRONMENT</div>
+    <div class="card-bd">
+      <pre class="ascii-pre" id="cdda-env"></pre>
+      <div id="cdda-glyph" style="margin-top:4px"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /cdda-content -->
+
+<!-- modals -->
+<div class="term-modal" id="modal-inv">
+  <div class="mw">
+    <div class="mh"><span>// INVENTORY_MANIFEST</span><button class="mclose">[X] CLOSE</button></div>
+    <div class="mb">
+      <div class="term-tabs"><span class="term-tab">武器</span><span class="term-tab">药品</span><span class="term-tab">工具</span><span class="term-tab">食物</span><span class="term-tab">弹药</span><span class="term-tab">材料</span><span class="term-tab">书籍</span></div>
+      <div id="cdda-inv"></div>
+    </div>
+  </div>
+</div>
+
+<div class="term-modal" id="modal-mut">
+  <div class="mw">
+    <div class="mh"><span>// MUTATION_/_CBM_REGISTRY</span><button class="mclose">[X] CLOSE</button></div>
+    <div class="mb term-cols">
+      <div class="term-col" id="cdda-mut-l"><span class="td">// 变异数据</span></div>
+      <div class="term-col" id="cdda-mut-r"><span class="td">// CBM数据</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="term-modal" id="modal-combat">
+  <div class="mw">
+    <div class="mh"><span>// COMBAT_FEED</span><button class="mclose">[X] CLOSE</button></div>
+    <div class="mb" id="cdda-combat-bd"></div>
+  </div>
+</div>
+
 </div>
 <script>
 (function(){
+var NL=String.fromCharCode(10),busy=!1;
 function $(id){return document.getElementById(id)}
-function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
-function num(v,d){v=Number(v);return Number.isFinite(v)?v:d}
-function pct(v,m){return Math.max(0,Math.min(100,Math.round(num(v,0)/num(m,100)*100)))}
-function bar(v,m,cls){var p=pct(v,m);return '<div class="bar '+(cls||'')+'"><i style="width:'+p+'%"></i></div>'}
-function val(o,k,d){return o&&o[k]!=null?o[k]:d}
-function getVars(){try{if(typeof getAllVariables==='function'){var a=getAllVariables();return a&&a.stat_data?a.stat_data:a}if(typeof Mvu!=='undefined'&&Mvu&&typeof Mvu.getMvuData==='function'){var m=Mvu.getMvuData({type:'message',message_id:'latest'});return m&&m.stat_data?m.stat_data:{}}}catch(e){}return {}}
-function getMsgs(){try{if(typeof getLastMessageId==='function'&&typeof getChatMessages==='function'){var last=getLastMessageId();for(var id=last;id>=0&&id>last-40;id--){var ms=getChatMessages(id,{role:'assistant'});if(ms&&ms.length&&ms[0].message)return ms[0].message}var fallback=getChatMessages(last);return fallback&&fallback[0]?fallback[0].message:''}}catch(e){}return ''}
-function tag(t,n){var r=new RegExp('<'+n+'>([\\s\\S]*?)(?:<\\/'+n+'>|$)','i');var m=String(t||'').match(r);return m?m[1].trim():''}
-function clean(t){return String(t||'').replace(/<thinking>[\s\S]*?<\/thinking>/gi,'').replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/<UpdateVariable>[\s\S]*?<\/UpdateVariable>/gi,'').replace(/<StatusPlaceHolderImpl\s*\/?>/gi,'').trim()}
-function parseMsg(t){t=String(t||'');var main=tag(t,'maintext')||clean(t);var raw=tag(t,'option');var opts=[];if(raw){raw.split(/\n+/).map(function(x){return x.trim()}).filter(Boolean).slice(0,4).forEach(function(x,i){var mm=x.match(/^([A-Za-z0-9一二三四])\s*[\.、．:]\s*(.*)$/);opts.push({id:mm?mm[1].toUpperCase():String(i+1),text:mm?mm[2].trim():x})})}return {main:main,opts:opts}}
-function data(){var v=getVars();return {w:v['世界']||{},p:v['玩家']||{},c:v['战斗']||{},g:v['进度']||{}}}
-
+function esc(s){return String(null==s?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function num(v,d){return(v=Number(v)),Number.isFinite(v)?v:d}
 function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
-function cbar(v,max,cells){var f=clamp(Math.round(num(v,0)/num(max,100)*cells),0,cells);return '|'.repeat(f)+'.'.repeat(cells-f)}
-function topLine(title,w){var t=' '+title+' ',l=Math.floor((w-t.length)/2),r=w-t.length-l;return '┌'+'─'.repeat(l)+t+'─'.repeat(r)+'┐'}
-function botLine(w){return '└'+'─'.repeat(w)+'┘'}
-function boxRow(t,w){t=String(t);return '│ '+(t.length>w-2?t.slice(0,w-3)+'…':t+' '.repeat(w-2-t.length))+' │'}
-function locGlyph(area){var a=String(area||'');if(a.includes('森林'))return '<span class="loc forest">F</span>';if(a.includes('小屋')||a.includes('木屋'))return '<span class="loc cabin">^</span>';if(a.includes('旷野')||a.includes('荒野')||a.includes('草地'))return '<span class="loc field">.</span>';if(a.includes('城市')||a.includes('街')||a.includes('民宅'))return '<span class="loc city">C</span>';return '<span class="loc">+</span>'}
-function asciiHp(p){var w=38,la=val(p,'HP_左臂',val(p,'HP_臂',80)),ra=val(p,'HP_右臂',val(p,'HP_臂',80)),ll=val(p,'HP_左腿',val(p,'HP_腿',80)),rl=val(p,'HP_右腿',val(p,'HP_腿',80));return [topLine('生命值',w),boxRow('头部 '+cbar(val(p,'HP_头',80),80,5)+' '+val(p,'HP_头',80)+'/80',w),boxRow('躯干 '+cbar(val(p,'HP_躯',80),80,5)+' '+val(p,'HP_躯',80)+'/80',w),boxRow('左臂 '+cbar(la,80,5)+' '+la+'/80  右臂 '+cbar(ra,80,5)+' '+ra+'/80',w),boxRow('左腿 '+cbar(ll,80,5)+' '+ll+'/80  右腿 '+cbar(rl,80,5)+' '+rl+'/80',w),boxRow('耐力 '+cbar(val(p,'耐力',100),val(p,'最大耐力',100),10)+' '+val(p,'耐力',100)+'/'+val(p,'最大耐力',100),w),boxRow('疼痛 '+cbar(val(p,'疼痛',0),100,10)+' '+val(p,'疼痛',0),w),boxRow('疲劳 '+cbar(val(p,'疲劳',0),100,10)+' '+val(p,'疲劳',0),w),botLine(w)].join('\\n')}
-function asciiStat(p){var w=38;return [topLine('属性与技能',w),boxRow('力量 '+val(p,'力量',8)+'  敏捷 '+val(p,'敏捷',8)+'  智力 '+val(p,'智力',8)+'  感知 '+val(p,'感知',8),w),boxRow('近战 '+val(p,'近战',1)+'  闪避 '+val(p,'闪避',0)+'  枪法 '+val(p,'枪法',0),w),boxRow('机械学 '+val(p,'机械学',0)+'  医疗 '+val(p,'医疗',0),w),botLine(w)].join('\\n')}
-function asciiEq(p){var w=38;return [topLine('装备与状态',w),boxRow('手持: '+val(p,'手持武器',val(p,'武器','长木棍')),w),boxRow('护甲: '+val(p,'护甲概述','无护甲，仅穿着普通衣物'),w),boxRow('武术流派: '+val(p,'武术流派','斗殴技'),w),boxRow('饥饿: '+val(p,'饥饿度','正常')+'  口渴: '+val(p,'口渴度','正常'),w),botLine(w)].join('\\n')}
-function asciiEnv(wd){var w=38;return [topLine('环境信息',w),boxRow('时间: '+val(wd,'日期','2026/04/30')+' '+val(wd,'时间','08:00'),w),boxRow('天气: '+val(wd,'天气','晴')+'  月相: '+val(wd,'月相','新月'),w),boxRow('地点: '+val(wd,'当前区域','紧急避难所'),w),botLine(w)].join('\\n')}
-function render(){var d=data(),p=d.p,w=d.w,c=d.c,msg=parseMsg(getMsgs());$('cdda-main').innerHTML=esc(msg.main||'CATACLYSM: DARK DAYS AHEAD\nXE-037 MONITOR: READY\n\n等待下一轮行动...')+(msg.opts.length?'<div class="opts">'+msg.opts.map(function(o){return '<button class="opt" data-opt="'+esc(o.id)+'">['+esc(o.id)+'] '+esc(o.text)+'</button>'}).join('')+'</div>':'');$('cdda-hp').outerHTML='<pre class="ascii" id="cdda-hp">'+esc(asciiHp(p))+'</pre>';$('cdda-stat').outerHTML='<pre class="ascii" id="cdda-stat">'+esc(asciiStat(p))+'</pre>';$('cdda-eq').outerHTML='<pre class="ascii" id="cdda-eq">'+esc(asciiEq(p))+'</pre>';$('cdda-env').outerHTML='<div id="cdda-env"><pre class="ascii">'+esc(asciiEnv(w))+'</pre><div style="margin-top:8px">'+locGlyph(val(w,'当前区域','紧急避难所'))+' <span class="dim">terrain glyph</span></div></div>';$('cdda-map').textContent='┌────────────┐\\n│ . . F . .  │\\n│ . ^ . . F  │\\n│ . . + . .  │\\n│ F . . . .  │\\n└────────────┘';var inv=val(p,'物品栏',{}),tabs='<div class="tabs"><span class="tab">武器</span><span class="tab">药品</span><span class="tab">工具</span><span class="tab">食物</span><span class="tab">弹药</span><span class="tab">材料</span><span class="tab">书籍</span></div>';$('cdda-inv').innerHTML=tabs+(Object.keys(inv).length?Object.keys(inv).map(function(k){return '<div class="item row"><span>'+esc(k)+'</span><b>'+esc(inv[k])+'</b></div>'}).join(''):'<span class="dim">空</span>');$('cdda-mut').innerHTML='<div class="item"><b class="neutral">变异</b><br>'+list(val(p,'变异列表',val(p,'变异',[])))+'</div><div class="item"><b class="good">CBM</b><br>'+list(val(p,'CBM列表',val(p,'CBM',[])))+'</div>';$('cdda-combat').innerHTML='<div class="row"><span>当前敌人</span><b>'+esc(val(c,'当前敌人',val(c,'敌人','无')))+'</b></div><div class="row"><span>敌人数量</span><b>'+esc(val(c,'敌人数量',0))+'</b></div><div class="row"><span>战斗态势</span><b>'+esc(val(c,'战斗态势',val(c,'状态','安全')))+'</b></div>'+'<div class="log">'+list(val(c,'战斗日志',[]))+'</div>'}
-function list(x){if(!Array.isArray(x)||!x.length)return '<span class="pill">无</span>';return x.map(function(i){return '<span class="pill">'+esc(i)+'</span>'}).join('')}
-function setBusy(v){$('cdda-send').disabled=v;$('cdda-input').disabled=v}
-async function currentData(){try{if(typeof Mvu!=='undefined'&&Mvu&&typeof Mvu.getMvuData==='function')return Mvu.getMvuData({type:'message',message_id:'latest'})}catch(e){}return {stat_data:getVars()}}
-function normalizeReply(r){var t=String(r||'');if(!/<maintext>/i.test(t))t='<maintext>'+clean(t)+'</maintext>';if(!/<StatusPlaceHolderImpl\s*\/?>/i.test(t))t+='\n\n<StatusPlaceHolderImpl/>';return t}
-async function send(t){t=String(t||'').trim();if(!t)return;try{setBusy(true);$('cdda-main').innerHTML=esc('> '+t+'\n\n等待响应...');var d=await currentData();if(typeof createChatMessages==='function')await createChatMessages([{role:'user',message:t,data:d}],{refresh:'none'});var reply='';if(typeof generate==='function')reply=await generate({user_input:t,should_stream:true});reply=normalizeReply(reply);if(typeof Mvu!=='undefined'&&Mvu&&typeof Mvu.parseMessage==='function')try{var parsed=await Mvu.parseMessage(reply,d.stat_data||{});if(parsed)d={stat_data:parsed}}catch(e){console.warn('[CDDA] Mvu.parseMessage failed',e)}if(typeof createChatMessages==='function')await createChatMessages([{role:'assistant',message:reply,data:d}],{refresh:'none'});setTimeout(render,300)}catch(e){console.error('[CDDA]',e);$('cdda-main').innerHTML=esc('请求失败: '+(e&&e.message||e))}finally{setBusy(false)}}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-open]');if(b){$('modal-'+b.getAttribute('data-open')).classList.add('on')}var c=e.target.closest('.close');if(c)c.closest('.modal').classList.remove('on');var o=e.target.closest('[data-opt]');if(o)send(o.textContent.replace(/^\[[^\]]+\]\s*/,''))});$('cdda-send').addEventListener('click',function(){send($('cdda-input').value);$('cdda-input').value=''});$('cdda-input').addEventListener('keydown',function(e){if(e.key==='Enter'){send(this.value);this.value=''}});render();setInterval(render,1500);try{if(typeof eventOn==='function'){eventOn('MESSAGE_UPDATED',render);eventOn('MESSAGE_RECEIVED',function(){setTimeout(render,500)});eventOn('CDDA_PANEL_REFRESH',render)}}catch(e){}
+function val(o,k,d){return null!=o&&null!=o[k]?o[k]:d}
+function cbar(v,mx,cells){var f=clamp(Math.round(num(v,0)/num(mx,100)*cells),0,cells);return'|'.repeat(f)+'.'.repeat(cells-f)}
+function topL(t,w){var s=' '+t+' ',l=Math.floor((w-s.length)/2),r=w-s.length-l;return'┌'+'─'.repeat(l)+s+'─'.repeat(r)+'┐'}
+function botL(w){return'└'+'─'.repeat(w)+'┘'}
+function row(t,w){return'│ '+(t.length>w-2?t.slice(0,w-3)+'…':t+' '.repeat(w-2-t.length))+' │'}
+function lg(area){var a=String(area||'');if(a.indexOf('森林')>=0)return'<span class="lglyph f">F</span>';if(a.indexOf('小屋')>=0||a.indexOf('木屋')>=0)return'<span class="lglyph h">^</span>';if(a.indexOf('旷野')>=0||a.indexOf('荒野')>=0||a.indexOf('草地')>=0)return'<span class="lglyph w">.</span>';if(a.indexOf('城市')>=0||a.indexOf('街')>=0||a.indexOf('民宅')>=0)return'<span class="lglyph c">C</span>';return'<span class="lglyph s">+</span>'}
+function gv(){try{if('function'==typeof getAllVariables){var a=getAllVariables();return a&&a.stat_data?a.stat_data:a}if('function'==typeof getVariables){var g=getVariables({type:'message'});return g&&g.stat_data?g.stat_data:g}if('undefined'!=typeof Mvu&&Mvu&&'function'==typeof Mvu.getMvuData){var m=Mvu.getMvuData({type:'message',message_id:'latest'});return m&&m.stat_data?m.stat_data:{}}}catch(e){}return{}}
+function gm(){try{if('function'==typeof getLastMessageId&&'function'==typeof getChatMessages){for(var l=getLastMessageId(),i=l;i>=0&&i>l-40;i--){var m=getChatMessages(i,{role:'assistant'});if(m&&m.length&&m[0].message)return m[0].message}var f=getChatMessages(l);return f&&f[0]?f[0].message:''}}catch(e){}return''}
+function tag(t,n){var r=new RegExp('<'+n+'>([\s\S]*?)(?:<\/'+n+'>|$)','i'),m=String(t||'').match(r);return m?m[1].trim():''}
+function clean(t){return String(t||'').replace(/<thinking>[\s\S]*?<\/thinking>/gi,'').replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/<UpdateVariable>[\s\S]*?<\/UpdateVariable>/gi,'').replace(/<StatusPlaceHolderImpl\s*\/?>/gi,'').trim()}
+function parseMsg(t){t=String(t||'');var main=tag(t,'maintext')||clean(t),raw=tag(t,'option'),opts=[];if(raw){raw.split(/\n+/).map(function(x){return x.trim()}).filter(Boolean).slice(0,4).forEach(function(x,i){var mm=x.match(/^([A-Za-z0-9一二三四])\s*[.、．:]\s*(.*)$/);opts.push({id:mm?mm[1].toUpperCase():String(i+1),text:mm?mm[2].trim():x})})}return{main:main,opts:opts}}
+function d(){var v=gv();return{w:v['世界']||{},p:v['玩家']||{},c:v['战斗']||{},g:v['进度']||{}}}
+function hp(p){var w=42,la=val(p,'HP_左臂',val(p,'HP_臂',80)),ra=val(p,'HP_右臂',val(p,'HP_臂',80)),ll=val(p,'HP_左腿',val(p,'HP_腿',80)),rl=val(p,'HP_右腿',val(p,'HP_腿',80));return[topL('生命值',w),row('头部 '+cbar(val(p,'HP_头',80),80,5)+' '+val(p,'HP_头',80)+'/80',w),row('躯干 '+cbar(val(p,'HP_躯',80),80,5)+' '+val(p,'HP_躯',80)+'/80',w),row('左臂 '+cbar(la,80,5)+' '+la+'/80  右臂 '+cbar(ra,80,5)+' '+ra+'/80',w),row('左腿 '+cbar(ll,80,5)+' '+ll+'/80  右腿 '+cbar(rl,80,5)+' '+rl+'/80',w),row('耐力 '+cbar(val(p,'耐力',100),val(p,'最大耐力',100),10)+' '+val(p,'耐力',100)+'/'+val(p,'最大耐力',100),w),row('疼痛 '+cbar(val(p,'疼痛',0),100,10)+' '+val(p,'疼痛',0),w),row('疲劳 '+cbar(val(p,'疲劳',0),100,10)+' '+val(p,'疲劳',0),w),botL(w)].join(NL)}
+function st(p){var w=42;return[topL('属性与技能',w),row('力量 '+val(p,'力量',8)+'  敏捷 '+val(p,'敏捷',8)+'  智力 '+val(p,'智力',8)+'  感知 '+val(p,'感知',8),w),row('近战 '+val(p,'近战',1)+'  闪避 '+val(p,'闪避',0)+'  枪法 '+val(p,'枪法',0),w),row('机械学 '+val(p,'机械学',0)+'  医疗 '+val(p,'医疗',0),w),botL(w)].join(NL)}
+function eq(p){var w=42;return[topL('装备与状态',w),row('手持: '+val(p,'手持武器',val(p,'武器','长木棍')),w),row('护甲: '+val(p,'护甲概述','无护甲，仅穿着普通衣物'),w),row('武术流派: '+val(p,'武术流派','斗殴技'),w),row('饥饿: '+val(p,'饥饿度','正常')+'  口渴: '+val(p,'口渴度','正常')+'  温度: '+val(p,'温度','舒适'),w),botL(w)].join(NL)}
+function ev(wd){var w=42;return[topL('环境信息',w),row('时间: '+val(wd,'日期','2026/04/30')+' '+val(wd,'时间','08:00')+'  天气: '+val(wd,'天气','晴'),w),row('月相: '+val(wd,'月相','新月'),w),row('地点: '+val(wd,'当前区域','紧急避难所'),w),botL(w)].join(NL)}
+function render(){var dt=d(),p=dt.p,w=dt.w,c=dt.c,msg=parseMsg(gm());$('cdda-screen').innerHTML='<span class="td">// SYS:READY. '+(msg.main?'已解析剧情文本 ('+msg.main.length+'字节). 请在下方输入行动或选择选项':'等待下一轮行动')+'.</span>';var oe=$('cdda-opts');if(msg.opts.length){oe.innerHTML=msg.opts.map(function(o){return'<button class="term-opt" data-opt="'+esc(o.id)+'">['+esc(o.id)+'] '+esc(o.text)+'</button>'}).join('');oe.style.display=''}else oe.style.display='none';$('cdda-hp').textContent=hp(p);$('cdda-stat').textContent=st(p);$('cdda-eq').textContent=eq(p);$('cdda-env').textContent=ev(w);$('cdda-glyph').innerHTML=lg(val(w,'当前区域','紧急避难所'))+' <span class="td">// terrain</span>';var inv=val(p,'物品栏',{});$('cdda-inv').innerHTML=Object.keys(inv).length?Object.keys(inv).map(function(k){return'<div class="term-item"><span>'+esc(k)+'</span><span class="tc">x'+esc(inv[k])+'</span></div>'}).join(''):'<span class="td">// 物品栏为空</span>';$('cdda-mut-l').innerHTML='<span class="tv">// 变异</span><br>'+ls(val(p,'变异列表',val(p,'变异',[])));$('cdda-mut-r').innerHTML='<span class="tc">// CBM</span><br>'+ls(val(p,'CBM列表',val(p,'CBM',[])));$('cdda-combat-bd').innerHTML='<div class="term-item"><span>当前敌人</span><span class="tr">'+esc(val(c,'当前敌人',val(c,'敌人','无')))+'</span></div><div class="term-item"><span>敌人数量</span><span class="ta">'+esc(val(c,'敌人数量',0))+'</span></div><div class="term-item"><span>战斗态势</span><span>'+esc(val(c,'战斗态势',val(c,'状态','安全')))+'</span></div><div class="term-log">'+ls(val(c,'战斗日志',[]))+'</div>'}
+function ls(x){if(!Array.isArray(x)||!x.length)return'<span class="term-pill td">无</span>';return x.map(function(i){var c='term-pill';return'string'==typeof i&&(c+=i.indexOf('良性')>=0||i.indexOf('正面')>=0?' tm':i.indexOf('恶性')>=0||i.indexOf('负面')>=0?' tr':''),'<span class="'+c+'">'+esc(i)+'</span>'}).join('')}
+function sb(v){$('cdda-send').disabled=v;$('cdda-input').disabled=v}
+async function cd(){try{if('function'==typeof Mvu?.getMvuData)return Mvu.getMvuData({type:'message',message_id:'latest'})}catch(e){}return{stat_data:gv()}}
+function nr(r){var t=String(r||'');return/<maintext>/i.test(t)||(t='<maintext>'+clean(t)+'</maintext>'),/<StatusPlaceHolderImpl\s*\/?>/i.test(t)||(t+='\n\n<StatusPlaceHolderImpl/>'),t}
+async function send(t){if(!(t=String(t||'').trim()))return;try{sb(!0),$('cdda-status').textContent='BUSY',$('cdda-screen').innerHTML='<span class="ta">&gt; '+esc(t)+'\n\n响应中...</span>',$('cdda-input').value='';var dt=await cd();'function'==typeof createChatMessages&&await createChatMessages([{role:'user',message:t,data:dt}],{refresh:'none'});var reply='';'function'==typeof generate&&(reply=await generate({user_input:t,should_stream:!0})),reply=nr(reply);if('function'==typeof Mvu?.parseMessage)try{var p=await Mvu.parseMessage(reply,dt.stat_data||{});p&&(dt={stat_data:p})}catch(e){}'function'==typeof createChatMessages&&await createChatMessages([{role:'assistant',message:reply,data:dt}],{refresh:'none'}),setTimeout(render,300)}catch(e){$('cdda-screen').innerHTML='<span class="tr">// ERROR: '+esc(e&&e.message||e)+'</span>'}finally{sb(!1),$('cdda-status').textContent='ONLINE'}}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-open]');if(b)return $('modal-'+b.getAttribute('data-open')).classList.add('on');var c=e.target.closest('.mclose');if(c)return c.closest('.term-modal').classList.remove('on');var o=e.target.closest('[data-opt]');if(o){send(o.textContent.replace(/^\[[^\]]+\]\s*/,''));return}});
+$('cdda-send').addEventListener('click',function(){send($('cdda-input').value)});
+$('cdda-input').addEventListener('keydown',function(e){'Enter'===e.key&&send(this.value)});
+document.querySelectorAll('.term-modal').forEach(function(m){m.addEventListener('click',function(e){e.target===m&&m.classList.remove('on')})});
+render();setInterval(render,1500);
+try{'function'==typeof eventOn&&(eventOn('MESSAGE_UPDATED',render),eventOn('MESSAGE_RECEIVED',function(){setTimeout(render,500)}),eventOn('CDDA_PANEL_REFRESH',render))}catch(e){}
 })();
 </script>
 </body>
