@@ -26,7 +26,7 @@
 html,body{
   margin:0;padding:0;background:var(--bg-root);color:var(--slate-300);
   font-family:"JetBrains Mono","Consolas","Courier New",monospace;
-  font-size:12px;line-height:1.5;overflow:hidden;
+  font-size:12px;line-height:1.5;overflow-x:hidden;
   -webkit-font-smoothing:antialiased;letter-spacing:.04em;
 }
 
@@ -47,10 +47,31 @@ html,body{
 
 /* === Layout === */
 .app-root{
-  width:100vw;height:100vh;display:flex;flex-direction:row;
-  padding:8px;gap:8px;position:relative;z-index:1;overflow:hidden;
+  width:100%;min-height:100vh;min-height:100dvh;
+  display:flex;flex-direction:row;
+  padding:8px;gap:8px;position:relative;z-index:1;
 }
-@media(max-width:700px){.app-root{flex-direction:column;padding:4px;gap:4px}}
+/* responsive */
+@media(max-width:1024px){.term-side{width:310px}}
+@media(max-width:860px){
+  .app-root{flex-direction:column;padding:4px;gap:4px}
+  .term-side{width:100%;max-height:none;flex-direction:row;flex-wrap:wrap;gap:4px;overflow-y:visible}
+  .term-side>*{flex:1;min-width:210px;max-width:calc(50% - 4px)}
+  .term-main{min-height:300px;max-height:none}
+  .term-screen{max-height:42vh}
+}
+@media(max-width:520px){
+  .term-side>*{min-width:100%;max-width:100%}
+  .term-main{min-height:240px}
+  .term-screen{max-height:32vh}
+  .term-bar .bar-btn{font-size:9px;padding:2px 5px}
+  .term-bar .bar-title{font-size:9px}
+  .term-opts{grid-template-columns:1fr}
+  .inv-grid,.mut-grid{grid-template-columns:1fr}
+  .hp-flex{flex-direction:column;gap:2px}
+  .combat-top{flex-direction:column}
+  html,body{font-size:11px}
+}
 
 /* HUD corners */
 .hud-corner{
@@ -67,6 +88,7 @@ html,body{
   flex:1;min-width:0;display:flex;flex-direction:column;
   border:1px solid var(--slate-800);background:var(--bg-panel);
   box-shadow:inset 0 0 100px rgba(0,0,0,1);position:relative;overflow:hidden;
+  min-height:380px;
 }
 
 /* Top bar */
@@ -142,11 +164,10 @@ html,body{
 
 /* === Side panel (right) === */
 .term-side{
-  width:380px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;
+  width:380px;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);
+  flex-shrink:0;display:flex;flex-direction:column;gap:6px;
   overflow-y:auto;padding-right:2px;
 }
-@media(max-width:700px){.term-side{width:100%;flex-direction:row;flex-wrap:wrap;gap:4px}
-  .term-side>*{flex:1;min-width:200px}}
 
 /* fieldset card - matches reference StatusPanel */
 .fs-card{
